@@ -30,20 +30,63 @@
               </el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label="奖项设置">
+            <el-table
+              :data="tableData"
+              border
+              style="width: 100%">
+              <el-table-column
+                prop="name"
+                label="奖项"
+                width="180">
+              </el-table-column>
+              <el-table-column label="中奖人数">
+                <template scope="scope">
+                  <el-input-number v-model="scope.row.num" :min="1"></el-input-number>
+                </template>
+              </el-table-column>
+              <el-table-column label="分几次抽奖">
+                <template scope="scope">
+                  <el-input-number v-model="scope.row.time" :min="1"></el-input-number>
+                </template>
+              </el-table-column>
+              <el-table-column label="奖品名称">
+                <template scope="scope">
+                  <el-input v-model="scope.row.prizeName" placeholder="请输入奖品名称"></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column label="奖品价格">
+                <template scope="scope">
+                  <el-input v-model="scope.row.prizePrice" placeholder="请输入奖品价格"></el-input>
+                  元
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="saveSettings">保存</el-button>
+            <el-button @click="cancle">取消</el-button>
+            <el-button @click="cleanSettings">全部清空</el-button>
+          </el-form-item>
         </el-form>
       </el-collapse-item>
       <el-collapse-item title="高级配置" name="2">
-        <div>功能正在研究</div>
+        <div>功能正在研究敬请期待</div>
       </el-collapse-item>
     </el-collapse>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import utils from '../utils/store.js';
+
   export default{
+    created () {
+      this._initSettings();
+    },
     data () {
       return {
-        activeNames: ['1', '2'],
+        activeNames: ['1'],
         options5: [{
           value: '特等奖',
           label: '特等奖'
@@ -60,27 +103,51 @@
         prizeList: [],
         defaultActive: true,
         num: '',
-        topic: '',
-        tableData: []
+        topic: ''
       };
     },
-    watch: {
-      prizeList: {
-        deep: true,
-        handler (oldval, newval) {
-          debugger;
-          if (oldval.length < newval.length) {
-            this.tableData.push({
-              name: newval.pop(),
-              num: 1,
-              time: 1
-            });
-          } else {
-            this.tableData = this.tableData.map((e) => {
-              return e;
-            });
-          }
+    computed: {
+      tableData () {
+        let tableData = [];
+        this.prizeList.forEach((e) => {
+          tableData.push({
+            name: e,
+            num: 1,
+            time: 1,
+            prizePrice: '',
+            prizeName: ''
+          });
+        });
+        return tableData;
+      }
+    },
+    methods: {
+      saveSettings () {
+        let data = {
+          prizeList: this.prizeList,
+          defaultActive: this.defaultActive,
+          num: this.num,
+          topic: this.topic,
+          tableData: this.tableData
+        };
+        utils.save('roll', data);
+      },
+      cancle () {
+        this._initSettings();
+      },
+      _initSettings () {
+        let data = utils.fetch('roll');
+        debugger;
+        if (data) {
+          this.prizeList = data.prizeList;
+          this.defaultActive = data.defaultActive;
+          this.num = data.num;
+          this.topic = data.topic;
+          this.tableData = data.tableData;
         }
+      },
+      cleanSettings () {
+        utils.clean('roll');
       }
     }
   };
