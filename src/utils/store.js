@@ -1,4 +1,4 @@
-const prefix = 'my_baby_tu';
+const prefix = 'my_baby_tu_';
 const localStorage = window.localStorage;
 
 export default {
@@ -9,6 +9,6 @@ export default {
     localStorage.setItem(prefix + key, JSON.stringify(store));
   },
   clean (key) {
-    localStorage.setItem(prefix + key);
+    localStorage.removeItem(prefix + key);
   }
 };

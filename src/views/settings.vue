@@ -1,5 +1,5 @@
 <template>
-  <div class="settings">
+  <div class="settings-wrapper">
     <el-collapse v-model="activeNames">
       <el-collapse-item title="默认配置" name="1">
         <el-form label-position="left" label-width="80px">
@@ -9,7 +9,7 @@
           <el-form-item label="抽奖主题">
             <el-input v-model="topic"></el-input>
           </el-form-item>
-          <el-form-item label="是否启用非重复抽奖">
+          <el-form-item label="允许重复抽奖">
             <el-switch
               v-model="defaultActive"
               on-text=""
@@ -53,12 +53,6 @@
               <el-table-column label="奖品名称">
                 <template scope="scope">
                   <el-input v-model="scope.row.prizeName" placeholder="请输入奖品名称"></el-input>
-                </template>
-              </el-table-column>
-              <el-table-column label="奖品价格">
-                <template scope="scope">
-                  <el-input v-model="scope.row.prizePrice" placeholder="请输入奖品价格"></el-input>
-                  元
                 </template>
               </el-table-column>
             </el-table>
@@ -114,7 +108,6 @@
             name: e,
             num: 1,
             time: 1,
-            prizePrice: '',
             prizeName: ''
           });
         });
@@ -136,23 +129,23 @@
         this._initSettings();
       },
       _initSettings () {
-        let data = utils.fetch('roll');
-        debugger;
-        if (data) {
-          this.prizeList = data.prizeList;
-          this.defaultActive = data.defaultActive;
-          this.num = data.num;
-          this.topic = data.topic;
-          this.tableData = data.tableData;
-        }
+        let data = utils.fetch('roll') || {};
+        this.prizeList = data.prizeList || [];
+        this.defaultActive = data.defaultActive || true;
+        this.num = data.num || 1;
+        this.topic = data.topic || '';
+        this.tableData = data.tableData || [];
       },
       cleanSettings () {
         utils.clean('roll');
+        this._initSettings();
       }
     }
   };
 </script>
 <style lang="stylus" rel="stylesheet/stylus">
-  .settings
+  .settings-wrapper
     padding: 100px
+    .el-select
+      width: 400px
 </style>
