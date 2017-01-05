@@ -1,81 +1,97 @@
 <template>
   <div class="main-wrapper">
-    <div class="main">
-      <div id="res" style="text-align:center;color:#fff;padding-top:15px;"></div>
-      <div class="num_mask"></div>
-      <div class="num_box">
-        <div class="num"></div>
-        <div class="num"></div>
-        <div class="num"></div>
-        <div class="num"></div>
-        <div class="btn" @click="draw">{{drawDesc}}</div>
+    <div class="main_bg">
+      <div class="main">
+        <div id="res" style="text-align:center;color:#fff;padding-top:15px;"></div>
+        <div class="num_mask"></div>
+        <div class="num_box">
+          <div class="num"></div>
+          <div class="num"></div>
+          <div class="num"></div>
+          <div class="num"></div>
+          <div class="btn" @click="draw">{{drawDesc}}</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  import utils from '../utils/store.js';
+  import $ from 'jquery';
 
   const u = 265;
+  const maxu = 530;
 
   export default{
+    created () {
+      $.easing['jswing'] = $.easing['swing'];
+      $.extend($.easing,
+        {
+          easeOutCirc: function (x, t, b, c, d) {
+            return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
+          }
+        });
+    },
     data () {
       return {
         drawDesc: '开始抽奖',
-        isStart: false
-      }
+        drawTime: 0,
+        isFinished: true
+      };
     },
     methods: {
       draw () {
-        if (this.isStart) {
-          $('.num').css('backgroundPositionY',0);
-          let result = this.random();
-          let num_arr = (result+'').split('');
-          $('.num').each(function(index){
+        if (!this.isFinished) {
+          return;
+        }
+        this.drawTime++;
+        if (this.drawTime % 2 === 0) {
+          if (!this.isFinished) {
+            return;
+          }
+          this.isFinished = false;
+          let numArr = this.etNumArr();
+          $('.num').each(function (index) {
             let _num = $(this);
-            setTimeout(function(){
+            setTimeout(function () {
               _num.animate({
-                backgroundPositionY: (u*60) - (u*num_arr[index])
-              },{
-                duration: 6000+index*3000,
-                easing: 'easeInOutCirc',
-                complete: function(){
-                  if(index==3) this.isStart = false;
+                backgroundPositionY: (maxu * 60) - (maxu * numArr[index])
+              }, {
+                duration: 6000 + index * 3000,
+                easing: 'easeOutCirc',
+                complete: function () {
+                  if (index === 3) this.isFinished = true;
                 }
               });
             }, index * 300);
           });
         } else {
-          let result = this.random();
-          let num_arr = (result+'').split('');
-          $('.num').each(function(index){
+          $('.num').css('backgroundPositionY', 0);
+          let numArr = this.etNumArr();
+          $('.num').each(function (index) {
             let _num = $(this);
-            setTimeout(function(){
+            setInterval(function () {
               _num.animate({
-                backgroundPositionY: (u*60) - (u*num_arr[index])
-              },{
-                duration: 6000+index*3000,
-                easing: 'easeInOutCirc',
-                complete: function(){
-                  if(index==3) isBegin = false;
-                }
+                backgroundPositionY: (u * 60) - (u * numArr[index])
+              }, {
+                duration: 6000 - index * 1000,
+                easing: 'easeOutCirc'
               });
             }, index * 300);
           });
         }
       },
-      random () {
-        let num = 100;
-        let rand = parseInt(Math.random() / num);
-        return rand;
+      getNumArr () {
+        let rand = parseInt(Math.random() * 9999 + 1);
+        let numArr = (rand + '').split('');
+        return numArr;
       }
     }
   };
 </script>
 
-<style lang="stylus" rel="stylesheet/stylus" scoped>
-  body
+<style lang="stylus" rel="stylesheet/stylus">
+  .main-wrapper
     background: url(./index/body_bg.jpg) 0px 0px repeat-x #000
 
   .main_bg

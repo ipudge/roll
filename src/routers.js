@@ -26,6 +26,6 @@ export default new Router({
     component: Try
   }, {
     path: '*',
-    redirect: '/'
+    redirect: '/try'
   }]
 });

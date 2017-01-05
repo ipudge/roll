@@ -4,7 +4,8 @@
       <el-menu default-active="1" theme="dark">
         <el-menu-item index="1"><i class="el-icon-setting"></i><router-link :to="{ path: '/settings'}">抽奖设置</router-link></el-menu-item>
         <el-menu-item index="2"><i class="el-icon-menu"></i><router-link :to="{ path: '/'}">去抽奖</router-link></el-menu-item>
-        <el-menu-item index="3"><i class="el-icon-document"></i><router-link :to="{ path: '/'}">抽奖结果</router-link></el-menu-item>
+        <el-menu-item index="3"><i class="el-icon-document"></i><router-link :to="{ path: '/try'}">试试效果</router-link></el-menu-item>
+        <el-menu-item index="4"><i class="el-icon-view"></i><router-link :to="{ path: '/'}">抽奖结果</router-link></el-menu-item>
       </el-menu>
       <div class="toggleNav" @click="toggleNav">
         <i class="el-icon-plus"></i>
@@ -56,6 +57,7 @@
         color: #20a0ff
         text-decoration: none
       &.active
+        color: #20a0ff
         transform: translate3d(0, 0, 0)
         .toggleNav
           .el-icon-plus
