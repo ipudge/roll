@@ -8,45 +8,67 @@
         <div class="num"></div>
         <div class="num"></div>
         <div class="num"></div>
-        <div class="btn"></div>
+        <div class="btn" @click="draw">{{drawDesc}}</div>
       </div>
     </div>
-    <el-dialog title="提示" v-model="dialogVisible" size="tiny" @close="gotoPlay">
-      <span>这是一段信息</span>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="gotoPlay">确 定</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import utils from '../utils/store.js';
 
+  const u = 265;
+
   export default{
-    created () {
-      this._init();
-    },
     data () {
       return {
-        dialogVisible: false
+        drawDesc: '开始抽奖',
+        isStart: false
       }
     },
     methods: {
-      _init () {
-        let data = utils.fetch('roll') || {};
-        if (!data.num) {
-          this.dialogVisible = true;
+      draw () {
+        if (this.isStart) {
+          $('.num').css('backgroundPositionY',0);
+          let result = this.random();
+          let num_arr = (result+'').split('');
+          $('.num').each(function(index){
+            let _num = $(this);
+            setTimeout(function(){
+              _num.animate({
+                backgroundPositionY: (u*60) - (u*num_arr[index])
+              },{
+                duration: 6000+index*3000,
+                easing: 'easeInOutCirc',
+                complete: function(){
+                  if(index==3) this.isStart = false;
+                }
+              });
+            }, index * 300);
+          });
+        } else {
+          let result = this.random();
+          let num_arr = (result+'').split('');
+          $('.num').each(function(index){
+            let _num = $(this);
+            setTimeout(function(){
+              _num.animate({
+                backgroundPositionY: (u*60) - (u*num_arr[index])
+              },{
+                duration: 6000+index*3000,
+                easing: 'easeInOutCirc',
+                complete: function(){
+                  if(index==3) isBegin = false;
+                }
+              });
+            }, index * 300);
+          });
         }
       },
-      getNumbers () {
-
-      },
-      saveInfo () {
-
-      },
-      gotoPlay () {
-        this.$router.push('try');
+      random () {
+        let num = 100;
+        let rand = parseInt(Math.random() / num);
+        return rand;
       }
     }
   };
@@ -95,10 +117,11 @@
     margin-right: 6px
 
   .btn
-    background: url(./index/btn_start.png) 0px 0px no-repeat
     width: 264px
     height: 89px
+    line-height: 89px
     position: absolute
+    text-align: center
     left: 50%
     bottom: 50px
     margin-left: -132px

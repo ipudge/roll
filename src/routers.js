@@ -8,6 +8,7 @@ Vue.use(Router);
 
 const Foo = resolve => require(['./views/Foo.vue'], resolve);
 const Settings = resolve => require(['./views/settings.vue'], resolve);
+const Try = resolve => require(['./views/try.vue'], resolve);
 
 export default new Router({
   mode: 'history',
@@ -20,6 +21,9 @@ export default new Router({
   }, {
     path: '/results',
     component: Foo
+  }, {
+    path: '/try',
+    component: Try
   }, {
     path: '*',
     redirect: '/'
