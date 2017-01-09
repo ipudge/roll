@@ -9,12 +9,13 @@ Vue.use(Router);
 const Foo = resolve => require(['./views/Foo.vue'], resolve);
 const Settings = resolve => require(['./views/settings.vue'], resolve);
 const Try = resolve => require(['./views/try.vue'], resolve);
+const Index = resolve => require(['./views/index.vue'], resolve);
 
 export default new Router({
   mode: 'history',
   routes: [{
     path: '/',
-    component: Foo
+    component: Index
   }, {
     path: '/settings',
     component: Settings

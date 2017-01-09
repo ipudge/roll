@@ -27,15 +27,6 @@
   const rollLength = 4;
 
   export default{
-    created () {
-      $.easing['jswing'] = $.easing['swing'];
-      $.extend($.easing,
-        {
-          easeOutCirc: function (x, t, b, c, d) {
-            return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
-          }
-        });
-    },
     data () {
       return {
         nums: 1,
@@ -62,7 +53,6 @@
         if (this.drawTime % 2 === 0) {
           let that = this;
           let numArr = this.getNumArr();
-          console.log(numArr);
           $('.num').each(function (index) {
             if (numArr[index] === '0' && index < that.acitiveLength) {
               return;

@@ -36,7 +36,7 @@
               border
               style="width: 100%">
               <el-table-column
-                prop="name"
+                prop="value"
                 label="奖项"
                 width="180">
               </el-table-column>
@@ -96,22 +96,30 @@
         }],
         prizeList: [],
         defaultActive: true,
-        num: '',
+        num: 1,
         topic: ''
       };
     },
     computed: {
       tableData () {
         let tableData = [];
-        this.prizeList.forEach((e) => {
+        this.prizeList.forEach((prize) => {
           tableData.push({
-            name: e,
+            value: prize,
             num: 1,
             time: 1,
-            prizeName: ''
+            prizeName: '',
+            label: prize
           });
         });
         return tableData;
+      },
+      numArr () {
+        let numArr = [];
+        for (let i = 1; i <= this.num; i++) {
+          numArr.push(i);
+        }
+        return numArr;
       }
     },
     methods: {
@@ -121,7 +129,8 @@
           defaultActive: this.defaultActive,
           num: this.num,
           topic: this.topic,
-          tableData: this.tableData
+          tableData: this.tableData,
+          numArr: this.numArr
         };
         utils.save('roll', data);
       },
