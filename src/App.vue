@@ -1,11 +1,19 @@
 <template>
   <div id="app">
     <div class="nav" :class="{'active':navShow}">
-      <el-menu default-active="1" theme="dark">
-        <el-menu-item index="1"><i class="el-icon-setting"></i><router-link :to="{ path: '/settings'}">抽奖设置</router-link></el-menu-item>
-        <el-menu-item index="2"><i class="el-icon-menu"></i><router-link :to="{ path: '/'}">去抽奖</router-link></el-menu-item>
-        <el-menu-item index="3"><i class="el-icon-document"></i><router-link :to="{ path: '/try'}">试试效果</router-link></el-menu-item>
-        <el-menu-item index="4"><i class="el-icon-view"></i><router-link :to="{ path: '/'}">抽奖结果</router-link></el-menu-item>
+      <el-menu default-active="1" theme="dark" :router="useRouter">
+        <el-menu-item index="1" :route="router1"><i class="el-icon-setting"></i>
+          抽奖设置
+        </el-menu-item>
+        <el-menu-item index="2" :route="router2"><i class="el-icon-menu"></i>
+          去抽奖
+        </el-menu-item>
+        <el-menu-item index="3" :route="router3"><i class="el-icon-document"></i>
+          试试效果
+        </el-menu-item>
+        <el-menu-item index="4" :route="router4"><i class="el-icon-view"></i>
+          抽奖结果
+        </el-menu-item>
       </el-menu>
       <div class="toggleNav" @click="toggleNav">
         <i class="el-icon-plus"></i>
@@ -22,7 +30,12 @@
   export default {
     data () {
       return {
-        navShow: false
+        navShow: false,
+        router1: {path: '/settings'},
+        router2: {path: '/'},
+        router3: {path: '/try'},
+        router4: {path: '/results'},
+        useRouter: true
       };
     },
     methods: {
@@ -53,11 +66,7 @@
       transition: all 0.5s
       transform: translate3d(-200px, 0, 0)
       z-index: 999
-      .router-link-active
-        color: #20a0ff
-        text-decoration: none
       &.active
-        color: #20a0ff
         transform: translate3d(0, 0, 0)
         .toggleNav
           .el-icon-plus
