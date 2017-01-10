@@ -7,12 +7,12 @@
         <p class="desc">{{awardDesc}}</p>
       </div>
       <div class="main" :class="classList[activeNum]">
-        <roll-control v-for="drawNum in activeNumArr" :defaultLength="defaultLength"
-                      :ref="'rollContrl' + drawNum"></roll-control>
+        <roll-control v-for="drawNum in activeNum" :defaultLength="defaultLength"
+                      :ref="'rollControl' + drawNum" :size="size"></roll-control>
       </div>
       <div class="btn" @click="draw">{{drawDesc}}</div>
       <div class="rest-wrapper">
-        <el-select v-model="selectedAward" placeholder="请选择奖项" :disabled="selectDisabled">
+        <el-select v-model="selectedAward" placeholder="请选择奖项">
           <el-option
             v-for="award in awardList"
             :label="award.label"
@@ -86,18 +86,19 @@
       activeNum () {
         return this.drawArr[this.times];
       },
-      activeNumArr () {
-        let activeNumArr = [];
-        for (let i = 0; i < this.activeNum; i++) {
-          activeNumArr.push(i);
-        }
-        return activeNumArr;
-      },
-      selectDisabled () {
-        return !this.times;
-      },
       defaultLength () {
         return rollLength - (this.num + '').split('').length;
+      },
+      size () {
+        if (this.activeNum === 1) {
+          return 1;
+        }
+        if (this.activeNum === 2 || this.activeNum === 4) {
+          return 2;
+        }
+        if (this.activeNum === 3 || this.activeNum === 5) {
+          return 2;
+        }
       }
     },
     methods: {
@@ -109,7 +110,8 @@
           this.awardList = data.tableData;
           this.numArr = data.numArr;
           this.selectedAward = this.awardList[0].value;
-          this.results = data.results;
+          this.results = data.results || [];
+          this.awardedArr = this.results.numArr || [];
           this.times = data.times || 0;
           this.topic = data.topic;
         } else {
@@ -120,16 +122,25 @@
         return this.numArr.splice(0, this.activeNum);
       },
       saveInfo () {
-        this.results = this.results.map((e) => {
-          if (e.value === this.selectedAward) {
-            e.numArr = e.numArr.concat(this.awardedArr);
-          } else {
+        debugger;
+        if (!this.times) {
+          this.results.push({
+            value: this.activeAward.value,
+            prizeName: this.activeAward.prizeName,
+            num: this.awardedArr.length,
+            numArr: this.awardedArr
+          });
+        } else {
+          this.results = this.results.map((e) => {
+            if (e.value === this.selectedAward) {
+              e.numArr = this.awardedArr;
+            }
             return e;
-          }
-        });
-        // TODO没有新增
+          });
+        }
         this.data.times = this.times;
         this.data.results = this.results;
+        this.data.numArr = this.numArr;
         utils.save('roll', this.data);
       },
       gotoPlay () {
@@ -139,14 +150,16 @@
         this.drawTime++;
         if (this.drawTime % 2 === 0) {
           this._shuffle();
-          this.awardedArr = this.getNumbers();
-          for (let i = 0; i < this.activeNum; i++) {
-            this.$ref['rollContrl' + i].stopAnimation(this.awardedArr[i]);
+          let awardedArrNow = this.getNumbers();
+          this.awardedArr = this.awardedArr.concat(awardedArrNow);
+          for (let i = 1; i <= this.activeNum; i++) {
+            this.$refs['rollControl' + i][0].stopAnimation(awardedArrNow[i - 1]);
           }
+          this.times++;
           this.saveInfo();
         } else {
-          for (let i = 0; i < this.activeNum; i++) {
-            this.$ref['rollContrl' + i].startAnimation();
+          for (let i = 1; i <= this.activeNum; i++) {
+            this.$refs['rollControl' + i][0].startAnimation();
           }
         }
       },
@@ -169,12 +182,15 @@
       background: url('./index/bg.jpg') top center no-repeat
       height: 1000px
       .main
-        position: absolute
         margin: 0 auto
+        width: 1000px
+      .roll1-box
+        margin-top: 100px
       .draw-topic
         width: 1000px
         text-align: center
         color: #fff
+        margin: 0 auto
         .title
           font-size: 50px
         .sub-title

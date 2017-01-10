@@ -14,6 +14,7 @@
   import $ from 'jquery';
 
   const u = 265;
+  const rollLength = 4;
 
   export default{
     created () {
@@ -27,6 +28,16 @@
       size: {
         type: Number,
         default: 1
+      }
+    },
+    data () {
+      return {
+        index: 0
+      };
+    },
+    computed: {
+      acitiveLength () {
+        return rollLength - this.index;
       }
     },
     methods: {
@@ -59,8 +70,9 @@
             return;
           }
           let _num = $(this);
-          _num.stop(true).css('backgroundPositionY', (u * 10) - u * numArr[index]);
+          _num.stop(true).css('backgroundPositionY', (u * 60) - u * numArr[index]);
         });
+        this.index = 0;
       },
       _fomatNum (num) {
         num += '';
@@ -75,6 +87,19 @@
           num = '0' + num;
         }
         return num;
+      },
+      rowBack (obj) {
+        let that = this;
+        obj.animate({
+          backgroundPositionY: u * 30
+        }, {
+          duration: 3000,
+          easing: 'linear',
+          complete: function () {
+            obj.css('backgroundPositionY', 0);
+            that.rowBack(obj);
+          }
+        });
       }
     }
   };
@@ -83,6 +108,7 @@
 <style lang="stylus" rel="stylesheet/stylus">
   .roll-control-size1
     position: relative
+    margin: 0 auto
     box-sizing: border-box
     background: url('./roll-control/bg_sb.png') center no-repeat
     width: 752px
@@ -90,13 +116,13 @@
     background-size: 752px 278px;
     .num_mask
       position: absolute
+      left: 6px
+      top: 0
       background: url('./roll-control/num_mask_sb.png') 0px 0px no-repeat
       height: 184px
       width: 740px
       z-index: 9
     .num_box
-      height: 450px
-      width: 750px
       position: absolute
       top: 0px
       z-index: 8
@@ -118,27 +144,23 @@
     background-size: 335px 124px;
     .num_mask
       background: url('./roll-control/num_mask_b.png') 0px 0px no-repeat
-      height: 184px
-      width: 335px
+      height: 60px
+      width: 330px
       position: absolute
-      left: 0
+      left: 3px
       top: 0
       z-index: 9
     .num_box
       position: absolute
-      left: 0
-      top: 0
-      height: 450px
-      width: 750px
+      top: 0px
       z-index: 8
       overflow: hidden
       text-align: center
       .num
         background: url('./roll-control/num_b.png') top center repeat-y
-        width: 181px
-        height: 265px
+        width: 83px
+        height: 110px
         float: left
-        margin-right: 6px
 
   .roll-control-size3
     position: relative
@@ -157,10 +179,7 @@
       z-index: 9
     .num_box
       position: absolute
-      left: 0
-      top: 0
-      height: 450px
-      width: 750px
+      top: 0px
       z-index: 8
       overflow: hidden
       text-align: center

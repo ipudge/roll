@@ -19,8 +19,10 @@
         label="中奖人数">
       </el-table-column>
       <el-table-column
-        prop="numArr"
         label="中奖号码">
+        <template scope="scope">
+          <span class="el-tag" style="margin-left: 10px" v-for="num in scope.row.numArr" >{{num}}</span>
+        </template>
       </el-table-column>
     </el-table>
   </div>
@@ -62,6 +64,18 @@
     .title
       font-size: 50px
       color: #555
-      text-align : center
-      margin-bottom : 80px
+      text-align: center
+      margin-bottom: 80px
+    .el-tag
+      background-color: #8492a6
+      display: inline-block
+      padding: 0 5px
+      height: 24px
+      line-height: 22px
+      font-size: 12px
+      color: #fff
+      border-radius: 4px
+      box-sizing: border-box
+      border: 1px solid transparent
+      white-space: nowrap
 </style>
