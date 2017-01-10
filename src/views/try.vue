@@ -1,5 +1,5 @@
 <template>
-  <div class="main-wrapper">
+  <div class="try-wrapper">
     <div class="main_bg">
       <div class="main">
         <div class="num_wrapper">
@@ -67,7 +67,7 @@
           this.drawDesc = '停止抽奖';
           this.isFinished = false;
           let that = this;
-          $('.num').css('backgroundPositionY', 0).each(function (index) {
+          $('.num').stop(true).css('backgroundPositionY', 0).each(function (index) {
             let _num = $(this);
             if (index >= that.defaultLength) {
               setTimeout(function () {
@@ -125,67 +125,61 @@
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
-  .main-wrapper
+  .try-wrapper
     background: url(./index/body_bg.jpg) 0px 0px repeat-x #000
-
-  .main_bg
-    background: url(./index/main_bg.jpg) top center no-repeat
-    height: 1000px
-
-  .main
-    width: 1000px
-    height: 1000px
-    position: relative
-    margin: 0 auto
-    .num_wrapper
+    .main_bg
+      background: url(./index/main_bg.jpg) top center no-repeat
+      height: 1000px
+      .main
+        width: 1000px
+        height: 1000px
+        position: relative
+        margin: 0 auto
+        .num_wrapper
+          position: absolute
+          left: 50%
+          margin-left: -90px
+          top: 750px
+          color: #fff
+        .num_mask
+          background: url(./index/num_mask.png) 0px 0px no-repeat
+          height: 184px
+          width: 740px
+          position: absolute
+          left: 50%
+          top: 340px
+          margin-left: -370px
+          z-index: 9
+        .num_box
+          height: 450px
+          width: 750px
+          position: absolute
+          left: 50%
+          top: 340px
+          margin-left: -370px
+          z-index: 8
+          overflow: hidden
+          text-align: center
+          .num
+            background: url(./index/num.png) top center repeat-y
+            width: 181px
+            height: 265px
+            float: left
+            margin-right: 6px
+    .btn
+      width: 264px
+      height: 89px
+      line-height: 89px
       position: absolute
+      text-align: center
       left: 50%
-      margin-left: -90px
-      top: 750px
+      bottom: 50px
+      margin-left: -132px
+      cursor: pointer
+      clear: both
       color: #fff
-
-  .num_mask
-    background: url(./index/num_mask.png) 0px 0px no-repeat
-    height: 184px
-    width: 740px
-    position: absolute
-    left: 50%
-    top: 340px
-    margin-left: -370px
-    z-index: 9
-
-  .num_box
-    height: 450px
-    width: 750px
-    position: absolute
-    left: 50%
-    top: 340px
-    margin-left: -370px
-    z-index: 8
-    overflow: hidden
-    text-align: center
-
-  .num
-    background: url(./index/num.png) top center repeat-y
-    width: 181px
-    height: 265px
-    float: left
-    margin-right: 6px
-
-  .btn
-    width: 264px
-    height: 89px
-    line-height: 89px
-    position: absolute
-    text-align: center
-    left: 50%
-    bottom: 50px
-    margin-left: -132px
-    cursor: pointer
-    clear: both
-    color: #fff
-    font-size: 24px
-    border: 2px solid #fff
-    border-radius: 45px
+      font-size: 24px
+      border: 2px solid #fff
+      border-radius: 45px
 
 </style>

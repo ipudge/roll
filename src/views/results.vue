@@ -1,53 +1,67 @@
 <template>
-  <div class="re">
+  <div class="results-wrapper">
+    <h2 class="title">{{topicDesc}}</h2>
     <el-table
-      :data="tableData"
+      :empty-text="emptyText"
+      :data="results"
       border
       style="width: 100%">
       <el-table-column
-        prop="date"
-        label="日期"
-        width="180">
+        prop="value"
+        label="奖项名称">
       </el-table-column>
       <el-table-column
-        prop="name"
-        label="姓名"
-        width="180">
+        prop="prizeName"
+        label="奖品名称">
       </el-table-column>
       <el-table-column
-        prop="address"
-        label="地址">
+        prop="num"
+        label="中奖人数">
+      </el-table-column>
+      <el-table-column
+        prop="numArr"
+        label="中奖号码">
       </el-table-column>
     </el-table>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import utils from '../utils/store.js';
+
   export default {
+    created () {
+      let roll = utils.fetch('roll') || {};
+      this.results = roll.results || [];
+      this.topic = roll.topic;
+    },
     data () {
       return {
-        tableData: [{
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        }]
+        emptyText: '暂无中奖记录'
       };
+    },
+    computed: {
+      topicDesc () {
+        if (this.topic) {
+          return `${this.topic}抽奖的中奖结果`;
+        } else {
+          return '本次抽奖的中奖结果';
+        }
+      }
     }
   };
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
-
+  .results-wrapper
+    position: absolute
+    top: 100px
+    left: 50%
+    margin-left: -400px
+    width: 800px
+    .title
+      font-size: 50px
+      color: #555
+      text-align : center
+      margin-bottom : 80px
 </style>

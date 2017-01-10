@@ -4,7 +4,7 @@
       <el-collapse-item title="默认配置" name="1">
         <el-form label-position="left" label-width="80px">
           <el-form-item label="抽奖人数">
-            <el-input-number v-model="num" :min="1"></el-input-number>
+            <el-input-number v-model="num" :min="1" :max="9999"></el-input-number>
           </el-form-item>
           <el-form-item label="抽奖主题">
             <el-input v-model="topic"></el-input>
@@ -22,7 +22,7 @@
               multiple
               filterable
               allow-create
-              placeholder="请选择奖项或者自行编写奖项">
+              placeholder="请选择奖项名称或者自行编写奖项名称">
               <el-option
                 v-for="item in options5"
                 :label="item.label"
@@ -38,7 +38,7 @@
               <el-table-column
                 prop="value"
                 label="奖项"
-                width="180">
+                width="120">
               </el-table-column>
               <el-table-column label="中奖人数">
                 <template scope="scope">
@@ -124,6 +124,15 @@
     },
     methods: {
       saveSettings () {
+        let isOk = this._validate();
+        if (!isOk.success) {
+          this.$message({
+            showClose: true,
+            message: isOk.msg,
+            type: 'error'
+          });
+          return;
+        }
         let data = {
           prizeList: this.prizeList,
           defaultActive: this.defaultActive,
@@ -148,6 +157,33 @@
       cleanSettings () {
         utils.clean('roll');
         this._initSettings();
+      },
+      _validate () {
+        let isOk = {
+          success: true
+        };
+        if (!this.prizeList.length) {
+          isOk.success = false;
+          isOk.msg = '请选择奖项名称或者自行编写奖项名称';
+        }
+        let count = 0;
+        this.tableData.forEach((e) => {
+          if (e.num < e.time) {
+            isOk.success = false;
+            isOk.msg = `${e.value}的抽奖人数需大于或者等于抽奖次数`;
+          }
+          let oneCount = e.num / e.time;
+          if (oneCount > 5) {
+            isOk.success = false;
+            isOk.msg = `${e.value}请重新设置,现仅支持1-5个roll点器`;
+          }
+          count += e.num;
+        });
+        if (count > this.num) {
+          isOk.success = false;
+          isOk.msg = '获奖总人数应当小于总人数';
+        }
+        return isOk;
       }
     }
   };
@@ -156,5 +192,5 @@
   .settings-wrapper
     padding: 100px
     .el-select
-      width: 400px
+      width: 600px
 </style>

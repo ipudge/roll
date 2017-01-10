@@ -6,7 +6,7 @@ import Router from 'vue-router';
 
 Vue.use(Router);
 
-const Foo = resolve => require(['./views/Foo.vue'], resolve);
+const Results = resolve => require(['./views/results.vue'], resolve);
 const Settings = resolve => require(['./views/settings.vue'], resolve);
 const Try = resolve => require(['./views/try.vue'], resolve);
 const Index = resolve => require(['./views/index.vue'], resolve);
@@ -21,7 +21,7 @@ export default new Router({
     component: Settings
   }, {
     path: '/results',
-    component: Foo
+    component: Results
   }, {
     path: '/try',
     component: Try

@@ -1,12 +1,18 @@
 <template>
   <div class="main-wrapper">
-    <div class="main">
-      <div class="main_bg" :class="classList[activeNum]">
-
+    <div class="main_bg">
+      <div class="draw-topic">
+        <h1 class="title">{{topic}}</h1>
+        <p class="sub-title">{{selectedAward}}</p>
+        <p class="desc">{{awardDesc}}</p>
       </div>
-      <div class="btn">{{drawDesc}}</div>
+      <div class="main" :class="classList[activeNum]">
+        <roll-control v-for="drawNum in activeNumArr" :defaultLength="defaultLength"
+                      :ref="'rollContrl' + drawNum"></roll-control>
+      </div>
+      <div class="btn" @click="draw">{{drawDesc}}</div>
       <div class="rest-wrapper">
-        <el-select v-model="selectedAward" placeholder="请选择奖项">
+        <el-select v-model="selectedAward" placeholder="请选择奖项" :disabled="selectDisabled">
           <el-option
             v-for="award in awardList"
             :label="award.label"
@@ -15,13 +21,10 @@
           </el-option>
         </el-select>
       </div>
-      <div class="awardDesc">
-        <p class="text">{{awardDesc}}</p>
-      </div>
     </div>
     <el-dialog title="提示" v-model="dialogVisible" size="tiny" @close="gotoPlay">
       <span>配置信息不足请先<router-link to="/settings" replace>配置</router-link>或者<router-link to="/try"
-                                                                                       replace>试玩</router-link></span>
+                                                                                       replace>试玩一下</router-link></span>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="gotoPlay">确 定</el-button>
       </span>
@@ -32,6 +35,9 @@
 <script type="text/ecmascript-6">
   import utils from '../utils/store.js';
   import rollControl from '../components/roll-control';
+  import _ from 'lodash';
+
+  const rollLength = 4;
 
   export default{
     created () {
@@ -45,8 +51,10 @@
         awardList: [],
         selectedAward: '',
         numArr: [],
-        times: 1,
-        awardedArr: []
+        times: 0,
+        awardedArr: [],
+        drawTime: 0,
+        data: {}
       };
     },
     computed: {
@@ -64,36 +72,86 @@
       },
       drawArr () {
         let drawArr = [];
-        let times = parseInt(this.activeAward.num / this.activeAward.time);
+        let count = Math.floor(this.activeAward.num / this.activeAward.time);
         let remainder = this.activeAward.num % this.activeAward.time;
-        for (let i = 0; i < times; i++) {
-          drawArr.push(this.activeAward.times);
+        for (let i = 0; i < this.activeAward.time - 1; i++) {
+          drawArr.push(count);
         }
-        drawArr.push(remainder);
+        drawArr.push(count + remainder);
         return drawArr;
       },
       awardDesc () {
-        return `${this.selectedAward}共抽${this.totalTimes}次,当前${this.times}次,已中奖的号码是${this.awardedArr}`;
+        return `共抽${this.totalTimes}次,当前${this.times}次,已中奖的号码是${this.awardedArr}`;
       },
       activeNum () {
-        return this.drawArr[this.time];
+        return this.drawArr[this.times];
+      },
+      activeNumArr () {
+        let activeNumArr = [];
+        for (let i = 0; i < this.activeNum; i++) {
+          activeNumArr.push(i);
+        }
+        return activeNumArr;
+      },
+      selectDisabled () {
+        return !this.times;
+      },
+      defaultLength () {
+        return rollLength - (this.num + '').split('').length;
       }
     },
     methods: {
       _init () {
         let data = utils.fetch('roll') || {};
-        this.awardList = data.tableData;
-        this.numArr = data.numArr;
-        this.selectedAward = this.awardList[0].value;
+        this.data = data;
+        if (data.prizeList && data.prizeList.length) {
+          this.num = data.num;
+          this.awardList = data.tableData;
+          this.numArr = data.numArr;
+          this.selectedAward = this.awardList[0].value;
+          this.results = data.results;
+          this.times = data.times || 0;
+          this.topic = data.topic;
+        } else {
+          this.dialogVisible = true;
+        }
       },
       getNumbers () {
-
+        return this.numArr.splice(0, this.activeNum);
       },
       saveInfo () {
-
+        this.results = this.results.map((e) => {
+          if (e.value === this.selectedAward) {
+            e.numArr = e.numArr.concat(this.awardedArr);
+          } else {
+            return e;
+          }
+        });
+        // TODO没有新增
+        this.data.times = this.times;
+        this.data.results = this.results;
+        utils.save('roll', this.data);
       },
       gotoPlay () {
         this.$router.replace('try');
+      },
+      draw () {
+        this.drawTime++;
+        if (this.drawTime % 2 === 0) {
+          this._shuffle();
+          this.awardedArr = this.getNumbers();
+          for (let i = 0; i < this.activeNum; i++) {
+            this.$ref['rollContrl' + i].stopAnimation(this.awardedArr[i]);
+          }
+          this.saveInfo();
+        } else {
+          for (let i = 0; i < this.activeNum; i++) {
+            this.$ref['rollContrl' + i].startAnimation();
+          }
+        }
+      },
+      _shuffle () {
+        this.numArr = _.shuffle(this.numArr);
       }
     },
     components: {
@@ -103,61 +161,40 @@
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
-  body
-    background: url(./index/body_bg.jpg) 0px 0px repeat-x #000
-
-  .main_bg
-    background: url(./index/bg.jpg) top center no-repeat
+  .main-wrapper
+    background: url('./index/body_bg.jpg') 0px 0px repeat-x #000
     height: 1000px
-
-  .main
-    width: 1000px
-    height: 1000px
-    position: relative
-    margin: 0 auto
-
-  .num_mask
-    background: url(./index/num_mask.png) 0px 0px no-repeat
-    height: 184px
-    width: 740px
-    position: absolute
-    left: 50%
-    top: 340px
-    margin-left: -370px
-    z-index: 9
-
-  .num_box
-    height: 450px
-    width: 750px
-    position: absolute
-    left: 50%
-    top: 340px
-    margin-left: -370px
-    z-index: 8
     overflow: hidden
-    text-align: center
-
-  .num
-    background: url(./index/num.png) top center repeat-y
-    width: 181px
-    height: 265px
-    float: left
-    margin-right: 6px
-
-  .btn
-    width: 264px
-    height: 89px
-    line-height: 89px
-    position: absolute
-    text-align: center
-    left: 50%
-    bottom: 50px
-    margin-left: -132px
-    cursor: pointer
-    clear: both
-    color: #fff
-    font-size: 24px
-    border: 2px solid #fff
-    border-radius: 45px
+    .main_bg
+      background: url('./index/bg.jpg') top center no-repeat
+      height: 1000px
+      .main
+        position: absolute
+        margin: 0 auto
+      .draw-topic
+        width: 1000px
+        text-align: center
+        color: #fff
+        .title
+          font-size: 50px
+        .sub-title
+          font-size: 30px
+        .desc
+          font-size: 16px
+    .btn
+      width: 264px
+      height: 89px
+      line-height: 89px
+      position: absolute
+      text-align: center
+      left: 50%
+      bottom: 50px
+      margin-left: -132px
+      cursor: pointer
+      clear: both
+      color: #fff
+      font-size: 24px
+      border: 2px solid #fff
+      border-radius: 45px
 
 </style>
