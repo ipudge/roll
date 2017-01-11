@@ -3,16 +3,15 @@
     <div class="main_bg">
       <div class="draw-topic">
         <h1 class="title">{{topic}}</h1>
-        <p class="sub-title">{{selectedAward}}</p>
+        <p class="sub-title">{{subTitle}}</p>
         <p class="desc">{{awardDesc}}</p>
       </div>
-      <div class="main" :class="classList[activeNum]">
-        <roll-control v-for="drawNum in activeNum" :defaultLength="defaultLength"
-                      :ref="'rollControl' + drawNum" :size="size"></roll-control>
+      <div class="main">
+        <roll-control :defaultLength="defaultLength" ref="rollControl"></roll-control>
       </div>
       <div class="btn" @click="draw">{{drawDesc}}</div>
       <div class="rest-wrapper">
-        <el-select v-model="selectedAward" placeholder="请选择奖项">
+        <el-select v-model="selectedAward" placeholder="请选择奖项" :disabled="isOver" @change="reset">
           <el-option
             v-for="award in awardList"
             :label="award.label"
@@ -42,7 +41,6 @@
   export default{
     created () {
       this._init();
-      this.classList = ['default', 'roll1-box', 'roll2-box', 'roll3-box', 'roll4-box', 'roll5-box'];
     },
     data () {
       return {
@@ -51,10 +49,10 @@
         awardList: [],
         selectedAward: '',
         numArr: [],
-        times: 0,
-        awardedArr: [],
         drawTime: 0,
-        data: {}
+        data: {},
+        results: [],
+        topic: ''
       };
     },
     computed: {
@@ -68,103 +66,130 @@
         return activeAward;
       },
       totalTimes () {
-        return this.activeAward.time;
+        return this.activeAward.num;
       },
-      drawArr () {
-        let drawArr = [];
-        let count = Math.floor(this.activeAward.num / this.activeAward.time);
-        let remainder = this.activeAward.num % this.activeAward.time;
-        for (let i = 0; i < this.activeAward.time - 1; i++) {
-          drawArr.push(count);
+      subTitle () {
+        if (this.activeAward) {
+          return `${this.selectedAward}-${this.activeAward.prizeName}`;
+        } else {
+          return '';
         }
-        drawArr.push(count + remainder);
-        return drawArr;
       },
       awardDesc () {
         return `共抽${this.totalTimes}次,当前${this.times}次,已中奖的号码是${this.awardedArr}`;
       },
-      activeNum () {
-        return this.drawArr[this.times];
-      },
       defaultLength () {
         return rollLength - (this.num + '').split('').length;
       },
-      size () {
-        if (this.activeNum === 1) {
-          return 1;
-        }
-        if (this.activeNum === 2 || this.activeNum === 4) {
-          return 2;
-        }
-        if (this.activeNum === 3 || this.activeNum === 5) {
-          return 2;
-        }
+      isOver () {
+        return this.awardList.every((award) => {
+          return award.disabled === true;
+        });
+      },
+      resultNow () {
+        let resultNow = {};
+        this.results.forEach((result) => {
+          if (result.value === this.selectedAward) {
+            resultNow = result;
+          }
+        });
+        return resultNow;
+      },
+      awardedArr () {
+        return this.resultNow.numArr || [];
+      },
+      times () {
+        return this.resultNow.times || 0;
       }
     },
     methods: {
       _init () {
-        let data = utils.fetch('roll') || {};
-        this.data = data;
-        if (data.prizeList && data.prizeList.length) {
-          this.num = data.num;
-          this.awardList = data.tableData;
-          this.numArr = data.numArr;
-          this.selectedAward = this.awardList[0].value;
-          this.results = data.results || [];
-          this.awardedArr = this.results.numArr || [];
-          this.times = data.times || 0;
-          this.topic = data.topic;
+        this.data = utils.fetch('roll') || {};
+        if (this.data.prizeList && this.data.prizeList.length) {
+          this.num = this.data.num;
+          this.awardList = this.data.tableData;
+          this.numArr = this.data.numArr;
+          this.defaultActive = this.data.defaultActive;
+          this.topic = this.data.topic;
+          if (this.data.results) {
+            this.selectedAward = this.data.lastSelectedAward;
+            this.results = this.data.results;
+          } else {
+            this.selectedAward = this.awardList[0].value;
+            this.results = [];
+          }
         } else {
           this.dialogVisible = true;
         }
       },
-      getNumbers () {
-        return this.numArr.splice(0, this.activeNum);
+      randomIndex: function () {
+        return Math.floor(Math.random() * this.numArr.length);
       },
-      saveInfo () {
-        debugger;
-        if (!this.times) {
+      getNumbers () {
+        if (this.defaultActive) {
+          return this.numArr[this.randomIndex()];
+        } else {
+          return this.numArr.splice(this.randomIndex(), 1)[0];
+        }
+      },
+      saveInfo (number) {
+        if (this.times === 0) {
           this.results.push({
             value: this.activeAward.value,
             prizeName: this.activeAward.prizeName,
-            num: this.awardedArr.length,
-            numArr: this.awardedArr
+            numArr: [number],
+            times: 1
           });
         } else {
           this.results = this.results.map((e) => {
             if (e.value === this.selectedAward) {
-              e.numArr = this.awardedArr;
+              e.numArr.push(number);
+              if (this.times === this.totalTimes) {
+                e.disabled = true;
+              }
+              e.times++;
             }
             return e;
           });
         }
-        this.data.times = this.times;
         this.data.results = this.results;
         this.data.numArr = this.numArr;
+        this.data.lastSelectedAward = this.selectedAward;
         utils.save('roll', this.data);
       },
       gotoPlay () {
         this.$router.replace('try');
       },
       draw () {
+        if (this.isOver) {
+          this.$message('本次抽奖已全部结束!');
+          return;
+        }
+        if (this.times === this.totalTimes) {
+          this.$message(`${this.selectedAward}已全部抽完!切换奖项继续抽取`);
+          return;
+        }
         this.drawTime++;
         if (this.drawTime % 2 === 0) {
           this._shuffle();
-          let awardedArrNow = this.getNumbers();
-          this.awardedArr = this.awardedArr.concat(awardedArrNow);
-          for (let i = 1; i <= this.activeNum; i++) {
-            this.$refs['rollControl' + i][0].stopAnimation(awardedArrNow[i - 1]);
+          let number = this.getNumbers();
+          this.$refs.rollControl.stopAnimation(number);
+          this.drawDesc = '开始抽奖';
+          this.saveInfo(number);
+          if (this.times === this.totalTimes) {
+            this.$message(`${this.selectedAward}已全部抽完!切换奖项继续抽取`);
+            this.$set(this.activeAward, 'disabled', true);
           }
-          this.times++;
-          this.saveInfo();
         } else {
-          for (let i = 1; i <= this.activeNum; i++) {
-            this.$refs['rollControl' + i][0].startAnimation();
-          }
+          this.$refs.rollControl.startAnimation();
+          this.drawDesc = '停止抽奖';
         }
       },
       _shuffle () {
         this.numArr = _.shuffle(this.numArr);
+      },
+      reset () {
+        this.$refs.rollControl.reset();
       }
     },
     components: {
@@ -179,13 +204,13 @@
     height: 1000px
     overflow: hidden
     .main_bg
+      box-sizing: border-box
       background: url('./index/bg.jpg') top center no-repeat
       height: 1000px
+      padding-top: 80px
       .main
         margin: 0 auto
         width: 1000px
-      .roll1-box
-        margin-top: 100px
       .draw-topic
         width: 1000px
         text-align: center
@@ -193,10 +218,15 @@
         margin: 0 auto
         .title
           font-size: 50px
+          margin: 0
         .sub-title
           font-size: 30px
         .desc
           font-size: 16px
+      .rest-wrapper
+        position: absolute
+        right: 100px
+        top: 0
     .btn
       width: 264px
       height: 89px
@@ -212,5 +242,46 @@
       font-size: 24px
       border: 2px solid #fff
       border-radius: 45px
-
+  @media screen and (max-width: 1366px)
+    .main-wrapper
+      background: url('./index/body_bg.jpg') 0px 0px repeat-x #000
+      height: 1000px
+      overflow: hidden
+      .main_bg
+        box-sizing: border-box
+        background: url('./index/bg.jpg') top center no-repeat
+        height: 1000px
+        .main
+          margin: 0 auto
+          width: 1000px
+        .draw-topic
+          width: 1000px
+          text-align: center
+          color: #fff
+          margin: 0 auto
+          .title
+            font-size: 35px
+          .sub-title
+            font-size: 20px
+          .desc
+            font-size: 16px
+        .rest-wrapper
+          position: absolute
+          right: 100px
+          top: 0
+      .btn
+        width: 200px
+        height: 50px
+        line-height: 50px
+        position: absolute
+        text-align: center
+        left: 50%
+        bottom: 50px
+        margin-left: -100px
+        cursor: pointer
+        clear: both
+        color: #fff
+        font-size: 20px
+        border: 2px solid #fff
+        border-radius: 30px
 </style>

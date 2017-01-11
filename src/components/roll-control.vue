@@ -1,5 +1,5 @@
 <template>
-  <div class="roll-control-wrapper" :class="classList[size]">
+  <div class="roll-control-wrapper">
     <div class="num_mask"></div>
     <div class="num_box">
       <div class="num"></div>
@@ -17,19 +17,7 @@
   const rollLength = 4;
 
   export default{
-    created () {
-      this.classList = ['roll-control-size0', 'roll-control-size1', 'roll-control-size2', 'roll-control-size3'];
-    },
-    props: {
-      defaultLength: {
-        type: Number,
-        default: 0
-      },
-      size: {
-        type: Number,
-        default: 1
-      }
-    },
+    props: ['defaultLength'],
     data () {
       return {
         index: 0
@@ -100,13 +88,16 @@
             that.rowBack(obj);
           }
         });
+      },
+      reset () {
+        $('.num').css('backgroundPositionY', 0);
       }
     }
   };
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
-  .roll-control-size1
+  .roll-control-wrapper
     position: relative
     margin: 0 auto
     box-sizing: border-box
@@ -130,61 +121,6 @@
       text-align: center
       .num
         background: url('./roll-control/num_sb.png') top center repeat-y
-        width: 181px
-        height: 265px
-        float: left
-        margin-right: 6px
-
-  .roll-control-size2
-    position: relative
-    box-sizing: border-box
-    background: url('./roll-control/bg_b.png') center no-repeat
-    width: 335px
-    height: 124px
-    background-size: 335px 124px;
-    .num_mask
-      background: url('./roll-control/num_mask_b.png') 0px 0px no-repeat
-      height: 60px
-      width: 330px
-      position: absolute
-      left: 3px
-      top: 0
-      z-index: 9
-    .num_box
-      position: absolute
-      top: 0px
-      z-index: 8
-      overflow: hidden
-      text-align: center
-      .num
-        background: url('./roll-control/num_b.png') top center repeat-y
-        width: 83px
-        height: 110px
-        float: left
-
-  .roll-control-size3
-    position: relative
-    box-sizing: border-box
-    background: url('./roll-control/bg.png') center no-repeat
-    width: 335px
-    height: 124px
-    background-size: 335px 124px;
-    .num_mask
-      background: url('./roll-control/num_mask.png') 0px 0px no-repeat
-      height: 184px
-      width: 335px
-      position: absolute
-      left: 0
-      top: 0
-      z-index: 9
-    .num_box
-      position: absolute
-      top: 0px
-      z-index: 8
-      overflow: hidden
-      text-align: center
-      .num
-        background: url('./roll-control/num.png') top center repeat-y
         width: 181px
         height: 265px
         float: left

@@ -15,8 +15,10 @@
         label="奖品名称">
       </el-table-column>
       <el-table-column
-        prop="num"
         label="中奖人数">
+        <template scope="scope">
+          {{scope.row.numArr.length}}
+        </template>
       </el-table-column>
       <el-table-column
         label="中奖号码">

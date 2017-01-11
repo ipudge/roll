@@ -45,11 +45,6 @@
                   <el-input-number v-model="scope.row.num" :min="1"></el-input-number>
                 </template>
               </el-table-column>
-              <el-table-column label="分几次抽奖">
-                <template scope="scope">
-                  <el-input-number v-model="scope.row.time" :min="1"></el-input-number>
-                </template>
-              </el-table-column>
               <el-table-column label="奖品名称">
                 <template scope="scope">
                   <el-input v-model="scope.row.prizeName" placeholder="请输入奖品名称"></el-input>
@@ -95,7 +90,7 @@
           label: '三等奖'
         }],
         prizeList: [],
-        defaultActive: true,
+        defaultActive: false,
         num: 1,
         topic: ''
       };
@@ -107,7 +102,6 @@
           tableData.push({
             value: prize,
             num: 1,
-            time: 1,
             prizeName: '',
             label: prize
           });
@@ -149,7 +143,7 @@
       _initSettings () {
         let data = utils.fetch('roll') || {};
         this.prizeList = data.prizeList || [];
-        this.defaultActive = data.defaultActive || true;
+        this.defaultActive = data.defaultActive || false;
         this.num = data.num || 1;
         this.topic = data.topic || '';
         this.tableData = data.tableData || [];
@@ -168,15 +162,6 @@
         }
         let count = 0;
         this.tableData.forEach((e) => {
-          if (e.num < e.time) {
-            isOk.success = false;
-            isOk.msg = `${e.value}的抽奖人数需大于或者等于抽奖次数`;
-          }
-          let oneCount = e.num / e.time;
-          if (oneCount > 5) {
-            isOk.success = false;
-            isOk.msg = `${e.value}请重新设置,现仅支持1-5个roll点器`;
-          }
           count += e.num;
         });
         if (count > this.num) {
