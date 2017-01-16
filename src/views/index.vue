@@ -69,14 +69,22 @@
         return this.activeAward.num;
       },
       subTitle () {
-        if (this.activeAward) {
-          return `${this.selectedAward}-${this.activeAward.prizeName}`;
+        if (this.activeAward.num) {
+          if (this.activeAward.prizeName) {
+            return `${this.selectedAward}-${this.activeAward.prizeName}`;
+          } else {
+            return this.selectedAward;
+          }
         } else {
-          return '';
+          return '请先配置抽奖设置！';
         }
       },
       awardDesc () {
-        return `共抽${this.totalTimes}次,当前${this.times}次,已中奖的号码是${this.awardedArr}`;
+        if (this.totalTimes) {
+          return `共抽${this.totalTimes}次,当前${this.times}次,已中奖的号码是${this.awardedArr}`;
+        } else {
+          return '';
+        }
       },
       defaultLength () {
         return rollLength - (this.num + '').split('').length;
