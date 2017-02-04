@@ -12,7 +12,7 @@ const Try = resolve => require(['./views/try.vue'], resolve);
 const Index = resolve => require(['./views/index.vue'], resolve);
 
 export default new Router({
-  mode: 'hash',
+  mode: 'history',
   routes: [{
     path: '/',
     component: Index
