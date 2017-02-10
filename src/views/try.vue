@@ -58,7 +58,8 @@
               return;
             }
             let _num = $(this);
-            _num.stop(true).css('backgroundPositionY', (u * 10) - u * numArr[index]);
+            clearInterval(_num.data('myReq'));
+            _num.css('backgroundPositionY', (u * 10) - u * numArr[index]);
           });
           this.isFinished = true;
           this.drawDesc = '开始抽奖';
@@ -71,16 +72,12 @@
             let _num = $(this);
             if (index >= that.defaultLength) {
               setTimeout(function () {
-                _num.animate({
-                  backgroundPositionY: u * 30
-                }, {
-                  duration: 3000,
-                  easing: 'linear',
-                  complete: function () {
-                    _num.css('backgroundPositionY', 0);
-                    that.rowBack(_num);
-                  }
-                });
+                let obj = _num[0];
+                let myReq = setInterval(function () {
+                  let backgroundPositionY = parseInt(obj.style.backgroundPositionY) + u * 30 / 3000 * 16;
+                  obj.style.backgroundPositionY = backgroundPositionY + 'px';
+                }, 16);
+                _num.data('myReq', myReq);
               }, that.index * 300);
               that.index++;
             }
@@ -93,18 +90,9 @@
         let numArr = rand.split('');
         return numArr;
       },
-      rowBack (obj) {
-        let that = this;
-        obj.animate({
-          backgroundPositionY: u * 30
-        }, {
-          duration: 3000,
-          easing: 'linear',
-          complete: function () {
-            obj.css('backgroundPositionY', 0);
-            that.rowBack(obj);
-          }
-        });
+      step (obj) {
+        let backgroundPositionY = parseInt(obj.style.backgroundPositionY) + u * 30 / 3000 * 16;
+        obj.style.backgroundPositionY = backgroundPositionY + 'px';
       },
       _fomatNum (num) {
         num += '';
