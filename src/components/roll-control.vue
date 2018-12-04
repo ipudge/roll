@@ -42,8 +42,7 @@
                 duration: 3000,
                 easing: 'linear',
                 complete: function () {
-                  _num.css('backgroundPositionY', 0);
-                  that.rowBack(_num);
+                  that.rowBack(_num, 1);
                 }
               });
             }, that.index * 200);
@@ -80,16 +79,15 @@
         }
         return num;
       },
-      rowBack (obj) {
+      rowBack (obj, index) {
         let that = this;
         obj.animate({
-          backgroundPositionY: u * 30
+          backgroundPositionY: u * 30 * (1 + index)
         }, {
           duration: 3000,
           easing: 'linear',
           complete: function () {
-            obj.css('backgroundPositionY', 0);
-            that.rowBack(obj);
+            that.rowBack(obj, ++index);
           }
         });
       },
