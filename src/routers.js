@@ -8,7 +8,6 @@ Vue.use(Router);
 
 const Results = resolve => require(['./views/results.vue'], resolve);
 const Settings = resolve => require(['./views/settings.vue'], resolve);
-const Try = resolve => require(['./views/try.vue'], resolve);
 const Index = resolve => require(['./views/index.vue'], resolve);
 
 export default new Router({
@@ -22,9 +21,6 @@ export default new Router({
   }, {
     path: '/results',
     component: Results
-  }, {
-    path: '/try',
-    component: Try
   }, {
     path: '*',
     redirect: '/try'

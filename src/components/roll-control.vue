@@ -20,7 +20,8 @@
     props: ['defaultLength'],
     data () {
       return {
-        index: 0
+        index: 0,
+        timerArr: []
       };
     },
     computed: {
@@ -34,7 +35,7 @@
         $('.num').css('backgroundPositionY', 0).each(function (index) {
           let _num = $(this);
           if (index >= that.defaultLength) {
-            setTimeout(function () {
+            that.timerArr[index] = setTimeout(function () {
               _num.animate({
                 backgroundPositionY: u * 30
               }, {
@@ -45,13 +46,16 @@
                   that.rowBack(_num);
                 }
               });
-            }, that.index * 300);
+            }, that.index * 200);
             that.index++;
           }
         });
       },
       stopAnimation (num) {
         let that = this;
+        this.timerArr.forEach((timer) => {
+          clearTimeout(timer);
+        })
         let numArr = this._fomatNum(num).split('');
         $('.num').each(function (index) {
           if (numArr[index] === '0' && index < that.acitiveLength) {

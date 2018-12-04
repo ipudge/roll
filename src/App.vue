@@ -1,17 +1,14 @@
 <template>
   <div id="app">
     <div class="nav" :class="{'active':navShow}">
-      <el-menu default-active="1" theme="dark" :router="useRouter">
-        <el-menu-item index="1" :route="router1"><i class="el-icon-setting"></i>
+      <el-menu  background-color="#324157" text-color="#bfcbd9" :default-active="onRoutes" router >
+        <el-menu-item index="1" :index="router1"><i class="el-icon-setting"></i>
           抽奖设置
         </el-menu-item>
-        <el-menu-item index="2" :route="router2"><i class="el-icon-menu"></i>
+        <el-menu-item index="2" :index="router2"><i class="el-icon-menu"></i>
           去抽奖
         </el-menu-item>
-        <el-menu-item index="3" :route="router3"><i class="el-icon-document"></i>
-          试试效果
-        </el-menu-item>
-        <el-menu-item index="4" :route="router4"><i class="el-icon-view"></i>
+        <el-menu-item index="3" :index="router3"><i class="el-icon-view"></i>
           抽奖结果
         </el-menu-item>
       </el-menu>
@@ -22,7 +19,9 @@
     <transition name="fade">
       <div class="mask" v-show="navShow" @click="hideNav"></div>
     </transition>
-    <router-view></router-view>
+    <transition name="move" mode="out-in">
+      <router-view></router-view>
+    </transition>
   </div>
 </template>
 
@@ -33,10 +32,13 @@
         navShow: false,
         router1: {path: '/settings'},
         router2: {path: '/'},
-        router3: {path: '/try'},
-        router4: {path: '/results'},
-        useRouter: true
+        router3: {path: '/results'}
       };
+    },
+    computed : {
+      onRoutes(){
+        return this.$route.path;
+      },
     },
     methods: {
       hideNav () {
@@ -52,10 +54,14 @@
 <style lang="stylus" rel="stylesheet/stylus">
   html, body
     height: 100%
-
+    background #000
   #app
     width: 100%
     height: 100%
+    .move-enter-active,.move-leave-active
+      transition opacity .5s
+    .move-enter,.move-leave
+      opacity 0
     .nav
       position: fixed
       left: 0
@@ -85,6 +91,7 @@
           font-size: 20px
           transition: all 0.5s
           transform: rotate(0)
+
     .mask
       position: fixed
       left: 0

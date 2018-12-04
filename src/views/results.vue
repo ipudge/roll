@@ -1,32 +1,36 @@
 <template>
   <div class="results-wrapper">
-    <h2 class="title">{{topicDesc}}</h2>
-    <el-table
-      :empty-text="emptyText"
-      :data="results"
-      border
-      style="width: 100%">
-      <el-table-column
-        prop="value"
-        label="奖项名称">
-      </el-table-column>
-      <el-table-column
-        prop="prizeName"
-        label="奖品名称">
-      </el-table-column>
-      <el-table-column
-        label="中奖人数">
-        <template scope="scope">
-          {{scope.row.numArr.length}}
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="中奖号码">
-        <template scope="scope">
-          <span class="el-tag" style="margin-left: 10px" v-for="num in scope.row.numArr" >{{num}}</span>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div class="results-content">
+      <h2 class="title">{{topicDesc}}</h2>
+      <el-table
+        :empty-text="emptyText"
+        :data="results"
+        bordern>
+        <el-table-column
+          prop="value"
+          label="奖项名称">
+        </el-table-column>
+        <el-table-column
+          prop="prizeName"
+          label="奖品名称">
+          <template slot-scope="scope">
+            <el-tag>{{scope.row.prizeName}}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="中奖人数">
+          <template slot-scope="scope">
+            {{scope.row.totalNumArr.length}}
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="中奖号码">
+          <template slot-scope="scope">
+            <el-tag type="danger" :key="num" style="margin-left: 10px" v-for="num in scope.row.totalNumArr" >{{num}}</el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
   </div>
 </template>
 
@@ -35,7 +39,7 @@
 
   export default {
     created () {
-      let roll = utils.fetch('roll') || {};
+      let roll = utils.fetch('default_setting') || {};
       this.results = roll.results || [];
       this.topic = roll.topic;
     },
@@ -58,26 +62,19 @@
 
 <style lang="stylus" rel="stylesheet/stylus">
   .results-wrapper
-    position: absolute
-    top: 100px
-    left: 50%
-    margin-left: -400px
-    width: 800px
-    .title
-      font-size: 50px
-      color: #555
-      text-align: center
-      margin-bottom: 80px
-    .el-tag
-      background-color: #8492a6
-      display: inline-block
-      padding: 0 5px
-      height: 24px
-      line-height: 22px
-      font-size: 12px
-      color: #fff
-      border-radius: 4px
-      box-sizing: border-box
-      border: 1px solid transparent
-      white-space: nowrap
+    height 100%
+    background: -webkit-linear-gradient(top,#cbebdb 0,#3794c0 120%);
+    background: -moz-linear-gradient(top,#cbebdb 0,#3794c0 120%);
+    background: -o-linear-gradient(top,#cbebdb 0,#3794c0 120%);
+    background: -ms-linear-gradient(top,#cbebdb 0,#3794c0 120%);
+    background: linear-gradient(top,#cbebdb 0,#3794c0 120%);
+    .results-content
+      width 60%
+      margin 0 auto
+      padding-top 8%
+      .title
+        font-size: 50px
+        color: #555
+        text-align: center
+        margin: 0
 </style>
